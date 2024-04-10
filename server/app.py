@@ -40,15 +40,35 @@ class Plants(Resource):
 
 api.add_resource(Plants, '/plants')
 
-
+  
+    
 class PlantByID(Resource):
 
     def get(self, id):
         plant = Plant.query.filter_by(id=id).first().to_dict()
         return make_response(jsonify(plant), 200)
 
+    def patch(self, id):
+        data = request.get_json()
+        plant = Plant.query.filter_by(id=id).first()
+
+        if not plant:
+            return make_response(jsonify({'error': 'Plant not found'}), 404)
+
+        for key, value in data.items():
+            setattr(plant, key, value)
+
+        db.session.commit()
+
+        return make_response(jsonify(plant.to_dict()), 200)
+
 
 api.add_resource(PlantByID, '/plants/<int:id>')
+    
+    
+
+
+
 
 
 if __name__ == '__main__':
